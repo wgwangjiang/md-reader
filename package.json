@@ -1,6 +1,6 @@
 {
   "name": "md-reader",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "一个使用 Rust 和 Tauri 构建的 Markdown 文件阅读和编辑器，支持GitHub Flavored Markdown扩展",
   "scripts": {
     "tauri": "tauri",

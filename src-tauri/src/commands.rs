@@ -97,7 +97,7 @@ pub fn search_text(content: String, keyword: String) -> Vec<SearchResult> {
 pub fn get_version_info() -> VersionInfo {
     VersionInfo {
         app_name: "Markdown 阅读器".to_string(),
-        version: "1.4.0".to_string(),
+        version: "1.4.1".to_string(),
         author: "WIND".to_string(),
         description: "一个使用 Rust 和 Tauri 构建的 Markdown 文件阅读和编辑器，支持GitHub Flavored Markdown扩展".to_string(),
     }
