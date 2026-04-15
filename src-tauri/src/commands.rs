@@ -33,6 +33,14 @@ pub fn open_file(path: String) -> Result<FileContent, String> {
         return Err("文件不存在".to_string());
     }
     
+    // 检查文件大小，限制为10MB
+    const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024; // 10MB
+    if let Ok(metadata) = fs::metadata(&path) {
+        if metadata.len() > MAX_FILE_SIZE {
+            return Err(format!("文件过大，最大支持{}MB", MAX_FILE_SIZE / 1024 / 1024));
+        }
+    }
+    
     match fs::read_to_string(&path) {
         Ok(content) => {
             let name = file_path

@@ -374,7 +374,9 @@ async function newFile() {
     try {
         const { invoke } = window.__TAURI__.core || {};
         if (invoke) await invoke('set_modified', { modified: false });
-    } catch (e) {}
+    } catch (e) {
+        console.error('通知后端重置修改状态失败:', e);
+    }
 
     // 更新 UI
     elements.editor.value = '';
@@ -807,9 +809,11 @@ function triggerEditorInput() {
     
     // 异步通知后端
     try {
-        const { invoke } = window.__TAURI__?.core || {};
+        const { invoke } = (window.__TAURI__?.core) || {};
         if (invoke) invoke('set_modified', { modified: true });
-    } catch (e) {}
+    } catch (e) {
+        console.error('通知后端修改状态失败:', e);
+    }
 
     // 记录历史（用于撤销/重做）
     pushHistory();
@@ -1118,9 +1122,10 @@ function parseMarkdown(text) {
     html = html.replace(/&lt;([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})&gt;/g, '<a href="mailto:$1">$1</a>');
 
     // 裸露 URL 自动链接 (GFM 扩展)
-    html = html.replace(/(?<![="'\/])https?:\/\/[^\s<>\[\]"'`)\x00]+/g, (url) => {
+    // 使用兼容性更好的正则表达式，避免后行断言
+    html = html.replace(/(^|[^\w"'\/\-])((https?:\/\/)[^\s<>\[\]"'`)\x00]+)/g, (match, prefix, url) => {
         const cleaned = url.replace(/[.,;:!?]+$/, '');
-        return `<a href="${cleaned}" target="_blank">${cleaned}</a>`;
+        return `${prefix}<a href="${cleaned}" target="_blank">${cleaned}</a>`;
     });
 
     // 水平线 (支持 ---, ***, ___)
@@ -1967,12 +1972,20 @@ function syncScroll() {
     const editor = elements.editor;
     const previewContainer = elements.previewContainer;
 
-    // 计算滚动百分比
-    const scrollPercent = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
+    // 计算滚动百分比，避免除零错误
+    const editorScrollRange = editor.scrollHeight - editor.clientHeight;
+    if (editorScrollRange <= 0) {
+        isSyncingScroll = false;
+        return;
+    }
+    
+    const scrollPercent = editor.scrollTop / editorScrollRange;
 
     // 应用到预览区域
-    const targetScrollTop = scrollPercent * (previewContainer.scrollHeight - previewContainer.clientHeight);
-    previewContainer.scrollTop = targetScrollTop;
+    const previewScrollRange = previewContainer.scrollHeight - previewContainer.clientHeight;
+    if (previewScrollRange > 0) {
+        previewContainer.scrollTop = scrollPercent * previewScrollRange;
+    }
 
     setTimeout(() => { isSyncingScroll = false; }, 50);
 }
@@ -1985,12 +1998,20 @@ function syncScrollReverse() {
     const editor = elements.editor;
     const previewContainer = elements.previewContainer;
 
-    // 计算滚动百分比
-    const scrollPercent = previewContainer.scrollTop / (previewContainer.scrollHeight - previewContainer.clientHeight);
+    // 计算滚动百分比，避免除零错误
+    const previewScrollRange = previewContainer.scrollHeight - previewContainer.clientHeight;
+    if (previewScrollRange <= 0) {
+        isSyncingScroll = false;
+        return;
+    }
+    
+    const scrollPercent = previewContainer.scrollTop / previewScrollRange;
 
     // 应用到编辑器
-    const targetScrollTop = scrollPercent * (editor.scrollHeight - editor.clientHeight);
-    editor.scrollTop = targetScrollTop;
+    const editorScrollRange = editor.scrollHeight - editor.clientHeight;
+    if (editorScrollRange > 0) {
+        editor.scrollTop = scrollPercent * editorScrollRange;
+    }
 
     setTimeout(() => { isSyncingScroll = false; }, 50);
 }
