@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+; 取消注册 Markdown 阅读器
+[-HKEY_CURRENT_USER\Software\Classes\MdReaderApp]
+
+; 恢复 .md 文件关联（改为默认）
+[HKEY_CURRENT_USER\Software\Classes\.md]
+@=-
+
+; 恢复 .markdown 文件关联
+[HKEY_CURRENT_USER\Software\Classes\.markdown]
+@=-

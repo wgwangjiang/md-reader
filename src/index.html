@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 阅读器</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 工具栏 -->
+        <header class="toolbar">
+            <div class="toolbar-title" id="toolbar-title">未打开文件</div>
+            <!-- 编辑格式工具栏 -->
+            <div class="format-toolbar hidden" id="format-toolbar">
+                <button class="format-btn" id="fmt-bold" title="粗体 (Ctrl+B)">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/></svg>
+                </button>
+                <button class="format-btn" id="fmt-italic" title="斜体 (Ctrl+I)">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/></svg>
+                </button>
+                <button class="format-btn" id="fmt-code" title="行内代码">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                </button>
+                <span class="format-separator"></span>
+                <div class="heading-dropdown">
+                    <button class="format-btn" id="fmt-heading" title="标题">
+                        <svg viewBox="0 0 24 24" width="18" height="18"><text x="3" y="18" font-size="16" font-weight="bold" fill="currentColor">H</text></svg>
+                    </button>
+                    <div class="heading-dropdown-menu hidden" id="heading-menu">
+                        <div class="heading-item" data-level="1">H1 标题</div>
+                        <div class="heading-item" data-level="2">H2 标题</div>
+                        <div class="heading-item" data-level="3">H3 标题</div>
+                        <div class="heading-item" data-level="4">H4 标题</div>
+                        <div class="heading-item" data-level="5">H5 标题</div>
+                        <div class="heading-item" data-level="6">H6 标题</div>
+                        <div class="heading-item" data-level="0">普通文本</div>
+                    </div>
+                </div>
+                <button class="format-btn" id="fmt-quote" title="引用">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+                </button>
+                <span class="format-separator"></span>
+                <button class="format-btn" id="fmt-ul" title="无序列表">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/></svg>
+                </button>
+                <button class="format-btn" id="fmt-ol" title="有序列表">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"/></svg>
+                </button>
+                <span class="format-separator"></span>
+                <button class="format-btn" id="fmt-link" title="链接">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                </button>
+                <button class="format-btn" id="fmt-image" title="图片">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                </button>
+                <button class="format-btn" id="fmt-table" title="表格">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H4v-4h4v4zm0-6H4v-4h4v4zm0-6H4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4z"/></svg>
+                </button>
+                <span class="format-separator"></span>
+                <button class="format-btn" id="fmt-hr" title="分隔线">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M2 11h20v2H2z"/></svg>
+                </button>
+                <span class="format-separator"></span>
+                <button class="format-btn" id="btn-undo" title="撤销 (Ctrl+Z)">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05 1.04-6.83 2.73L2.5 7.6V16h8.4l-3.13-3.13C9.17 11.57 10.76 11 12.5 11c3.24 0 5.99 2.07 7.02 4.95l2.49-.83C20.53 11.09 16.84 8 12.5 8z"/></svg>
+                </button>
+                <button class="format-btn" id="btn-redo" title="重做 (Ctrl+Y)">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M18.33 10.73C16.55 9.04 14.15 8 11.5 8c-4.34 0-8.03 3.09-9.01 7.12l2.49.83C5.99 13.07 8.74 11 11.5 11c1.74 0 3.33.57 4.73 1.87L13.1 16h8.4V7.6l-3.17 3.13z"/></svg>
+                </button>
+            </div>
+
+            <div class="toolbar-actions">
+                <button class="toolbar-btn" id="btn-new" title="新建文件">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 14h-3v3h-2v-3H8v-2h3v-3h2v3h3v2zm-3-7V3.5L18.5 9H13z" />
+                    </svg>
+                </button>
+                <button class="toolbar-btn" id="btn-open" title="打开文件">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6l2 2h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2z" />
+                    </svg>
+                </button>
+                <button class="toolbar-btn" id="btn-edit" title="进入编辑模式" disabled>
+                    <svg id="btn-edit-icon" viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z" />
+                    </svg>
+                </button>
+                <button class="toolbar-btn" id="btn-search" title="查找" disabled>
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z" />
+                    </svg>
+                </button>
+                <button class="toolbar-btn" id="btn-font" title="字体设置">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M9 4v3h5v12h3V7h5V4H9zm-6 8h3v7h3v-7h3V9H3v3z" />
+                    </svg>
+                </button>
+                <button class="toolbar-btn" id="btn-pdf" title="导出PDF">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5c0 .83-.67 1.5-1.5 1.5H7v2H5.5V9H8c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V9H13c.83 0 1.5.67 1.5 1.5v3zm4-3H17v1h1.5V13H17v2h-1.5V9h3v1.5zM7 10.5h1v1H7v-1zm5 0h1v3h-1v-3z" />
+                    </svg>
+                </button>
+                <button class="toolbar-btn" id="btn-html" title="导出网页">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                    </svg>
+                </button>
+                <button class="toolbar-btn" id="btn-info" title="关于">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 欢迎界面 -->
+            <div id="welcome-screen" class="welcome-screen">
+                <h1>欢迎使用 Markdown 阅读器</h1>
+                <p>请点击"打开文件"按钮选择一个 Markdown 文件。</p>
+            </div>
+
+            <!-- 编辑器区域 -->
+            <div id="editor-container" class="editor-container hidden">
+                <textarea id="editor" class="editor" placeholder="在此输入 Markdown 内容..."></textarea>
+            </div>
+
+            <!-- 预览区域 -->
+            <div id="preview-container" class="preview-container hidden">
+                <div id="preview" class="preview"></div>
+            </div>
+        </main>
+
+        <!-- 搜索和替换面板 -->
+        <div id="search-panel" class="search-panel hidden">
+            <div class="search-header">
+                <div class="search-row">
+                    <input type="text" id="search-input" placeholder="查找内容" autocomplete="off" />
+                    <span id="search-count" class="search-count"></span>
+                    <div class="dropdown-container">
+                        <button id="search-dropdown" class="dropdown-btn" title="更多选项">▼</button>
+                        <div id="search-dropdown-menu" class="dropdown-menu hidden">
+                            <div class="replace-row">
+                                <input type="text" id="replace-input" placeholder="替换为" />
+                                <button id="replace-all-btn" class="replace-btn">全部替换</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="search-close" class="search-close-btn">&times;</button>
+                </div>
+            </div>
+            <div id="search-results" class="search-results"></div>
+        </div>
+
+        <!-- 字体设置面板 -->
+        <div id="font-panel" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>字体设置</h3>
+                    <button class="modal-close" id="font-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>字体：</label>
+                        <select id="font-family">
+                            <option value="微软雅黑">微软雅黑</option>
+                            <option value="宋体">宋体</option>
+                            <option value="黑体">黑体</option>
+                            <option value="楷体">楷体</option>
+                            <option value="仿宋">仿宋</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Consolas">Consolas</option>
+                            <option value="Courier New">Courier New</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>字号：</label>
+                        <input type="range" id="font-size" min="12" max="32" value="16" />
+                        <span id="font-size-value">16px</span>
+                    </div>
+                    <button id="font-apply" class="btn-primary">应用</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 版本信息面板 -->
+        <div id="info-panel" class="modal hidden">
+            <div class="modal-content" style="width: 520px; max-height: 80vh;">
+                <div class="modal-header">
+                    <h3>关于</h3>
+                    <button class="modal-close" id="info-close">&times;</button>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    <div id="version-info"
+                        style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                        <p><strong>应用名称：</strong><span id="app-name">Markdown 阅读器</span></p>
+                        <p><strong>版本：</strong><span id="app-version">1.0.0</span></p>
+                        <p><strong>作者：</strong><span id="app-author">MdReader Team</span></p>
+                        <p><strong>描述：</strong><span id="app-description">一个使用 Rust 和 Tauri 构建的 Markdown 文件阅读和编辑器，支持GitHub Flavored Markdown扩展</span>
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 10px; color: #333;">🛠️ 功能列表</h4>
+                        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>新建文件</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">新建空白 Markdown 文件并进入编辑模式</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>打开文件</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">打开 Markdown
+                                    文件（.md、.markdown、.txt）</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>编辑/预览</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">切换分屏编辑模式和纯预览模式</td>
+                            </tr>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>查找</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">在文档中搜索关键词</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>替换</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">查找并替换所有匹配内容</td>
+                            </tr>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>字体设置</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">自定义字体和字号</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>导出 PDF</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">将文档导出为 PDF 格式</td>
+                            </tr>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>导出网页</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">将文档导出为 HTML 网页</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><strong>链接跳转</strong></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">点击预览中的链接在默认浏览器中打开</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: #333;">⌨️ 快捷键</h4>
+                        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 6px 10px; border: 1px solid #ddd; width: 120px;"><kbd
+                                        style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; border: 1px solid #ccc; font-family: monospace;">Ctrl
+                                        + N</kbd></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">新建文件</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><kbd
+                                        style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; border: 1px solid #ccc; font-family: monospace;">Ctrl
+                                        + O</kbd></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">打开文件</td>
+                            </tr>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><kbd
+                                        style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; border: 1px solid #ccc; font-family: monospace;">Ctrl
+                                        + S</kbd></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">保存文件</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><kbd
+                                        style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; border: 1px solid #ccc; font-family: monospace;">Ctrl
+                                        + F</kbd></td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">打开查找面板</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;"><kbd
+                                        style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; border: 1px solid #ccc; font-family: monospace;">Esc</kbd>
+                                </td>
+                                <td style="padding: 6px 10px; border: 1px solid #ddd;">关闭查找/字体/关于面板</td>
+                            </tr>
+                        </table>
+                        <p style="margin-top: 10px; font-size: 12px; color: #666;">💡 提示：在 macOS 上可使用 Cmd 键代替 Ctrl 键</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态栏 -->
+        <footer class="status-bar">
+            <span id="status-file" class="hidden">未打开文件</span>
+            <span id="status-mode">阅读模式</span>
+        </footer>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>

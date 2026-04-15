@@ -1,0 +1,31 @@
+Windows Registry Editor Version 5.00
+
+; 注册 Markdown 阅读器应用
+[HKEY_CURRENT_USER\Software\Classes\MdReaderApp]
+@="Markdown 阅读器"
+"FriendlyTypeName"="Markdown 阅读器"
+
+[HKEY_CURRENT_USER\Software\Classes\MdReaderApp\shell]
+
+[HKEY_CURRENT_USER\Software\Classes\MdReaderApp\shell\open]
+
+[HKEY_CURRENT_USER\Software\Classes\MdReaderApp\shell\open\command]
+@="\"D:\\Desktop\\MdReader-win10\\src-tauri\\target\\release\\md-reader.exe\" \"%1\""
+
+; 关联 .md 文件
+[HKEY_CURRENT_USER\Software\Classes\.md]
+@="MdReaderApp"
+"Content Type"="text/markdown"
+"PerceivedType"="text"
+
+; 关联 .markdown 文件
+[HKEY_CURRENT_USER\Software\Classes\.markdown]
+@="MdReaderApp"
+"Content Type"="text/markdown"
+"PerceivedType"="text"
+
+; 关联 .txt 文件（可选）
+[HKEY_CURRENT_USER\Software\Classes\.txt]
+@="MdReaderApp"
+"Content Type"="text/plain"
+"PerceivedType"="text"
