@@ -4,11 +4,16 @@ node_modules/
 # Build outputs
 dist/
 src-tauri/target/
+bin-debug/
+bin-release/
+[Oo]bj/
+[Bb]in/
 
 # IDE
 .vscode/
 .idea/
 .codeartsdoer/
+.settings/
 
 # OS
 .DS_Store
@@ -26,3 +31,9 @@ npm-debug.log*
 # Tauri
 src-tauri/target/
 src-tauri/Cargo.lock
+
+# Executables
+*.swf
+*.air
+*.ipa
+*.apk
